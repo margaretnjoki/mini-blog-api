@@ -2,6 +2,20 @@ spring:
   application:
     name: mini-blog-api
 
+
+  datasource:
+      url: jdbc:postgresql://localhost:5432/mini_blog_db
+      username: postgres
+      password: postgres
+
+  jpa:
+      hibernate:
+        ddl-auto: validate
+      show-sql: true
+
+  flyway:
+      enabled: true
+
   server:
     port: 8080
     servlet:
@@ -10,3 +24,5 @@ spring:
     logging:
       level:
         root: INFO
+
+

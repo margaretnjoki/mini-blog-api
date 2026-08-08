@@ -98,4 +98,10 @@ public class PostService {
                                 Tag.builder().id(UUID.randomUUID()).name(name).build())))
                 .collect(Collectors.toSet());
     }
+
+    public Post findById(UUID postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", postId));
+
+    }
 }

@@ -45,12 +45,27 @@ public class AuthController {
     }
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+        log.info("logging user");
 
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.email(),
+                            request.password()
+                    )
+            );
+
+            log.info("authenticate");
+
+        } catch (Exception e) {
+            log.error("Authentication failed: {}", e.getMessage(), e);
+            throw e;
+        }
         User user = userRepository.findByEmail(request.email()).orElseThrow();
+        log.info("retrieve user by email");
         String accessToken = jwtService.generateToken(request.email());
         String refreshToken = refreshTokenService.createRefreshToken(user);
+        log.info("generating access token and refresh token");
 
         return new LoginResponse(accessToken, refreshToken);
     }

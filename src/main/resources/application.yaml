@@ -2,27 +2,28 @@ spring:
   application:
     name: mini-blog-api
 
-
   datasource:
-      url: jdbc:postgresql://localhost:5432/mini_blog_db
-      username: ${DB_USERNAME}
-      password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/mini_blog_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
-      hibernate:
-        ddl-auto: validate
-      show-sql: true
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
 
   flyway:
-      enabled: true
+    enabled: true
 
-  server:
-    port: 8080
-    servlet:
-      context-path: /api/v1
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: 3600000
 
-    logging:
-      level:
-        root: INFO
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
 
-
+logging:
+  level:
+    root: INFO

@@ -48,7 +48,7 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post", slug));
     }
 
-    private Post findOwnedById(UUID id) {
+    public Post findOwnedById(UUID id) {
         UUID userId = currentUserProvider.getCurrentUser().getId();
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", id));

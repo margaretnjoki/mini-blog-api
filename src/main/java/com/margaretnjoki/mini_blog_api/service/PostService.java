@@ -1,11 +1,13 @@
 package com.margaretnjoki.mini_blog_api.service;
 
 import com.margaretnjoki.mini_blog_api.dtos.CreatePostRequest;
+import com.margaretnjoki.mini_blog_api.dtos.PostResponse;
 import com.margaretnjoki.mini_blog_api.dtos.UpdatePostRequest;
 import com.margaretnjoki.mini_blog_api.entity.Post;
 import com.margaretnjoki.mini_blog_api.entity.Tag;
 import com.margaretnjoki.mini_blog_api.entity.User;
 import com.margaretnjoki.mini_blog_api.exception.ResourceNotFoundException;
+import com.margaretnjoki.mini_blog_api.repository.CommentRepository;
 import com.margaretnjoki.mini_blog_api.repository.PostRepository;
 import com.margaretnjoki.mini_blog_api.repository.TagRepository;
 import com.margaretnjoki.mini_blog_api.security.CurrentUserProvider;
@@ -22,11 +24,13 @@ public class PostService {
     private final PostRepository postRepository;
     private final TagRepository tagRepository;
     private CurrentUserProvider currentUserProvider;
+    private final CommentRepository commentRepository;
 
-    public PostService(PostRepository postRepository, TagRepository tagRepository,  CurrentUserProvider currentUserProvider) {
+    public PostService(PostRepository postRepository, TagRepository tagRepository, CurrentUserProvider currentUserProvider, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
         this.currentUserProvider = currentUserProvider;
+        this.commentRepository = commentRepository;
     }
 
     public Post create(CreatePostRequest req) {
@@ -49,6 +53,15 @@ public class PostService {
     public Post findBySlug(String slug) {
         return postRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", slug));
+    }
+
+    public PostResponse getPostBySlugWithCommentCount(String slug) {
+        Post post = postRepository.findBySlug(slug)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        long commentCount = commentRepository.countByPostId(post.getId());
+
+        return PostResponse.from(post, commentCount);
     }
 
     public Post findOwnedById(UUID id) {
@@ -106,5 +119,13 @@ public class PostService {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", postId));
 
+    }
+    public PostResponse getPostWithComments(String slug) {
+        Post post = postRepository.findBySlug(slug)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        long commentCount = commentRepository.countByPostId(post.getId());
+
+        return PostResponse.from(post, commentCount);
     }
 }

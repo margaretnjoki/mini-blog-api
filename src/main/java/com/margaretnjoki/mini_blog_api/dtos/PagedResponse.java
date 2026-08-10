@@ -1,23 +1,29 @@
 package com.margaretnjoki.mini_blog_api.dtos;
 
+import com.margaretnjoki.mini_blog_api.entity.Post;
+import com.margaretnjoki.mini_blog_api.repository.CommentRepository;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.function.Function;
 
 public record PagedResponse<T>(
         List<T> content,
         int page,
         int size,
-        long totalElement,
+        long totalElements,
         int totalPages,
         boolean last
 ) {
+    public static PagedResponse<PostResponse> from(Page<Post> page, CommentRepository commentRepository) {
+        List<PostResponse> content = page.getContent().stream()
+                .map(post -> {
+                    long commentCount = commentRepository.countByPostId(post.getId());
+                    return PostResponse.from(post, commentCount);
+                })
+                .toList();
 
-    // turn a Page<E> of entities into a PagedResponse<T> of DTOs
-    public static <E, T> PagedResponse<T> from(Page<E> page, Function<E, T> mapper) {
         return new PagedResponse<>(
-                page.getContent().stream().map(mapper).toList(),
+                content,
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),
@@ -26,4 +32,3 @@ public record PagedResponse<T>(
         );
     }
 }
-

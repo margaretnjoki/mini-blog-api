@@ -35,14 +35,16 @@ public class AuthController {
         this.userRepository = userRepository;
         this.refreshTokenService = refreshTokenService;
     }
+
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse register(@Valid @RequestBody RegisterRequest request){
+    public UserResponse register(@Valid @RequestBody RegisterRequest request) {
         log.info(">>> REGISTER ENDPOINT HIT <<<");
 
         return UserResponse.from(authService.register(request));
 
     }
+
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         log.info("logging user");
@@ -71,7 +73,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public LoginResponse refresh(@Valid @RequestBody RefreshRequest request){
+    public LoginResponse refresh(@Valid @RequestBody RefreshRequest request) {
         User user = refreshTokenService.verifyAndRotate(request.refreshToken());
         String newAccessToken = jwtService.generateToken(user.getEmail());
         String newRefreshToken = refreshTokenService.createRefreshToken(user);
@@ -79,7 +81,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public void logout(@AuthenticationPrincipal UserDetails userDetails){
+    public void logout(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
         refreshTokenService.revokeAllForUser(user);
     }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 public class CurrentUserProvider {
 
     private final UserRepository userRepository;
+
     public CurrentUserProvider(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

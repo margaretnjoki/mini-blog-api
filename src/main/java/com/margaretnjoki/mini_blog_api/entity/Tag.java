@@ -13,7 +13,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Tag {
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, unique = true)

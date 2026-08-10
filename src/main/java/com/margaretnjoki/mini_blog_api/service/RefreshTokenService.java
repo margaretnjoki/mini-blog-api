@@ -23,7 +23,8 @@ public class RefreshTokenService {
     public RefreshTokenService(RefreshTokenRepository repository) {
         this.repository = repository;
     }
-    public String createRefreshToken(User user){
+
+    public String createRefreshToken(User user) {
         String rawToken = generateSecureRandomToken();
         String hash = hash(rawToken);
 
@@ -39,12 +40,12 @@ public class RefreshTokenService {
         return rawToken;
     }
 
-    public User verifyAndRotate(String rawToken){
+    public User verifyAndRotate(String rawToken) {
         String hash = hash(rawToken);
         RefreshToken stored = repository.findByTokenHash(hash)
                 .orElseThrow(() -> new BadCredentialsException("Invalid refresh token"));
 
-        if (stored.isRevoked() || stored.getExpiresAt().isBefore(Instant.now())){
+        if (stored.isRevoked() || stored.getExpiresAt().isBefore(Instant.now())) {
             throw new BadCredentialsException("Refresh token expired or revoked");
         }
         stored.setRevoked(true);
@@ -52,23 +53,25 @@ public class RefreshTokenService {
 
         return stored.getUser();
     }
-    public void revokeAllForUser(User user){
+
+    public void revokeAllForUser(User user) {
         List<RefreshToken> tokens = repository.findByUserAndRevokedFalse(user);
         tokens.forEach(t -> t.setRevoked(true));
         repository.saveAll(tokens);
     }
-    private String generateSecureRandomToken(){
+
+    private String generateSecureRandomToken() {
         byte[] randomBytes = new byte[64];
         new SecureRandom().nextBytes(randomBytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
     }
 
-    private String hash(String token){
+    private String hash(String token) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(token.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(hashBytes);
-        }catch(NoSuchAlgorithmException e){
+        } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
     }

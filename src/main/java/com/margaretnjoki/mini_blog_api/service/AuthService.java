@@ -24,20 +24,20 @@ public class AuthService {
         this.notificationService = notificationService;
     }
 
-    public User register(RegisterRequest request){
+    public User register(RegisterRequest request) {
         log.info("create user called");
-        if (userRepository.findByEmail(request.email()).isPresent()){
+        if (userRepository.findByEmail(request.email()).isPresent()) {
             log.warn("user with this email exists {}", request.email());
             throw new EmailAlreadyInUseException(request.email());
         }
-        User user= User.builder()
+        User user = User.builder()
                 .email(request.email())
                 .displayName(request.displayName())
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .createdAt(Instant.now())
                 .build();
         User savedUser = userRepository.save(user);
-        log.info("user created successfully id= {}",savedUser.getId());
+        log.info("user created successfully id= {}", savedUser.getId());
         notificationService.sendWelcomeNotification(savedUser.getEmail());
         return savedUser;
     }

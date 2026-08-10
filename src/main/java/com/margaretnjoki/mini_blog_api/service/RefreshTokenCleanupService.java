@@ -13,8 +13,9 @@ public class RefreshTokenCleanupService {
     public RefreshTokenCleanupService(RefreshTokenRepository repository) {
         this.repository = repository;
     }
+
     @Scheduled(cron = "0 0 0 * * *")
-    public void deleteExpiredRefreshTokens(){
+    public void deleteExpiredRefreshTokens() {
         repository.deleteExpiredTokens(Instant.now());
     }
 }

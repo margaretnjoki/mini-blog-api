@@ -14,11 +14,11 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     Optional<Post> findBySlug(String slug);
 
     @Query("""
-    SELECT DISTINCT p FROM Post p
-    LEFT JOIN p.tags t
-    WHERE (:tag = '' OR LOWER(t.name) = LOWER(:tag))
-      AND (:q = '' OR LOWER(p.title) LIKE LOWER(CONCAT('%', :q, '%')))
-      AND p.publishedAt IS NOT NULL
-""")
+                SELECT DISTINCT p FROM Post p
+                LEFT JOIN p.tags t
+                WHERE (:tag = '' OR LOWER(t.name) = LOWER(:tag))
+                  AND (:q = '' OR LOWER(p.title) LIKE LOWER(CONCAT('%', :q, '%')))
+                  AND p.publishedAt IS NOT NULL
+            """)
     Page<Post> search(@Param("tag") String tag, @Param("q") String q, Pageable pageable);
-    }
+}

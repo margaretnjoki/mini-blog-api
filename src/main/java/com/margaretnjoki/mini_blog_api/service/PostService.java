@@ -120,6 +120,7 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post", postId));
 
     }
+
     public PostResponse getPostWithComments(String slug) {
         Post post = postRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("Post not found"));

@@ -65,6 +65,7 @@ public class GlobalExceptionHandler {
     public Map<String, Object> handleAccessDenied(AccessDeniedException ex) {
         return Map.of("error", "you do not have permission to perform this action");
     }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleAny(Exception ex) {
         log.error("Unexpected error", ex);   // full stack trace goes to the LOG, never to the client

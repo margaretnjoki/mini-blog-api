@@ -41,6 +41,8 @@ public class PostService {
                 .createdAt(Instant.now())
                 .tags(resolveTags(req.tagNames()))
                 .build();
+
+        post.setPublishedAt(java.time.Instant.now());
         return postRepository.save(post);
     }
 

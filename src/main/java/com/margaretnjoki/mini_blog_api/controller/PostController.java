@@ -2,10 +2,14 @@ package com.margaretnjoki.mini_blog_api.controller;
 
 
 import com.margaretnjoki.mini_blog_api.dtos.CreatePostRequest;
+import com.margaretnjoki.mini_blog_api.dtos.PagedResponse;
 import com.margaretnjoki.mini_blog_api.dtos.PostResponse;
 import com.margaretnjoki.mini_blog_api.dtos.UpdatePostRequest;
 import com.margaretnjoki.mini_blog_api.entity.Post;
+import com.margaretnjoki.mini_blog_api.repository.PostRepository;
 import com.margaretnjoki.mini_blog_api.service.PostService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -14,9 +18,11 @@ import java.util.UUID;
 @RequestMapping("/posts")
 public class PostController {
     private final PostService postService;
+    private final PostRepository postRepository;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, PostRepository postRepository) {
         this.postService = postService;
+        this.postRepository = postRepository;
     }
 
     @PostMapping
@@ -27,6 +33,16 @@ public class PostController {
     @GetMapping("/{slug}")
     public PostResponse getPostBySlug(@PathVariable String slug) {
         return PostResponse.from(postService.findBySlug(slug));
+    }
+
+    @GetMapping
+    public PagedResponse<PostResponse> search(
+            @RequestParam(required = false, defaultValue = "") String tag,
+            @RequestParam(required = false, defaultValue = "") String q,
+            Pageable pageable) {
+        Page<Post> posts = postRepository
+                .search(tag, q, pageable);
+        return PagedResponse.from(posts, PostResponse::from);
     }
 
     @GetMapping("/owned/{id}")

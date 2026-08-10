@@ -11,10 +11,12 @@ import com.margaretnjoki.mini_blog_api.repository.CommentRepository;
 import com.margaretnjoki.mini_blog_api.repository.PostRepository;
 import com.margaretnjoki.mini_blog_api.repository.TagRepository;
 import com.margaretnjoki.mini_blog_api.security.CurrentUserProvider;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,12 +27,15 @@ public class PostService {
     private final TagRepository tagRepository;
     private CurrentUserProvider currentUserProvider;
     private final CommentRepository commentRepository;
+    private final CacheManager cacheManager;
 
-    public PostService(PostRepository postRepository, TagRepository tagRepository, CurrentUserProvider currentUserProvider, CommentRepository commentRepository) {
+
+    public PostService(PostRepository postRepository, TagRepository tagRepository, CurrentUserProvider currentUserProvider, CommentRepository commentRepository, CacheManager cacheManager) {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
         this.currentUserProvider = currentUserProvider;
         this.commentRepository = commentRepository;
+        this.cacheManager = cacheManager;
     }
 
     public Post create(CreatePostRequest req) {
@@ -77,17 +82,15 @@ public class PostService {
 
     public Post update(UUID id, UpdatePostRequest req) {
         Post post = findOwnedById(id);
-        if (req.title() != null) post.setTitle(req.title());
-        if (req.bodyMd() != null) post.setBodyMd(req.bodyMd());
-        if (req.tagNames() != null) post.setTags(resolveTags(req.tagNames()));
-        if (Boolean.TRUE.equals(req.published()) && post.getPublishedAt() == null) {
-            post.setPublishedAt(Instant.now());
-        }
-        return postRepository.save(post);
+        Post saved = postRepository.save(post);
+        evictPostCache(saved.getSlug());
+        return saved;
     }
 
     public void delete(UUID id) {
-        postRepository.delete(findOwnedById(id));
+        Post post = findOwnedById(id);
+        postRepository.delete(post);
+        evictPostCache(post.getSlug());
     }
 
     private String generateSlug(String title) {
@@ -128,5 +131,9 @@ public class PostService {
         long commentCount = commentRepository.countByPostId(post.getId());
 
         return PostResponse.from(post, commentCount);
+    }
+
+    private void evictPostCache(String slug) {
+        Objects.requireNonNull(cacheManager.getCache("posts")).evict(slug);
     }
 }

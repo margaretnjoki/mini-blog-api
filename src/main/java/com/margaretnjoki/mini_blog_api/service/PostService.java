@@ -23,9 +23,10 @@ public class PostService {
     private final TagRepository tagRepository;
     private CurrentUserProvider currentUserProvider;
 
-    public PostService(PostRepository postRepository, TagRepository tagRepository) {
+    public PostService(PostRepository postRepository, TagRepository tagRepository,  CurrentUserProvider currentUserProvider) {
         this.postRepository = postRepository;
         this.tagRepository = tagRepository;
+        this.currentUserProvider = currentUserProvider;
     }
 
     public Post create(CreatePostRequest req) {
@@ -95,7 +96,7 @@ public class PostService {
         return tagNames.stream()
                 .map(name -> tagRepository.findByName(name)
                         .orElseGet(() -> tagRepository.save(
-                                Tag.builder().id(UUID.randomUUID()).name(name).build())))
+                                Tag.builder().name(name).build())))
                 .collect(Collectors.toSet());
     }
 

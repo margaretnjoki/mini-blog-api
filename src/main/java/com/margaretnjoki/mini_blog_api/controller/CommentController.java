@@ -1,5 +1,7 @@
 package com.margaretnjoki.mini_blog_api.controller;
 
+import com.margaretnjoki.mini_blog_api.dtos.CommentResponse;
+import com.margaretnjoki.mini_blog_api.dtos.CreateCommentRequest;
 import com.margaretnjoki.mini_blog_api.entity.Comment;
 import com.margaretnjoki.mini_blog_api.service.CommentService;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +19,16 @@ public class CommentController {
     }
 
     @GetMapping("/post/{postId}")
-    public List<Comment> getCommentsByPost(@PathVariable UUID postId) {
-        return commentService.findByPost(postId);
+    public List<CommentResponse> getCommentsByPost(@PathVariable UUID postId) {
+        return commentService.findByPost(postId)
+                .stream()
+                .map(CommentResponse::from)
+                .toList();
     }
 
     @PostMapping("/post/{postId}")
-    public Comment createComment(@PathVariable UUID postId, @RequestBody String body) {
-        return commentService.create(postId, body);
+    public CommentResponse createComment(@PathVariable UUID postId, @RequestBody CreateCommentRequest req) {
+        return CommentResponse.from(commentService.create(postId, req.body()));
     }
 
     @DeleteMapping("/{commentId}")

@@ -2,6 +2,7 @@ package com.margaretnjoki.mini_blog_api.controller;
 
 
 import com.margaretnjoki.mini_blog_api.dtos.CreatePostRequest;
+import com.margaretnjoki.mini_blog_api.dtos.PostResponse;
 import com.margaretnjoki.mini_blog_api.dtos.UpdatePostRequest;
 import com.margaretnjoki.mini_blog_api.entity.Post;
 import com.margaretnjoki.mini_blog_api.service.PostService;
@@ -19,23 +20,23 @@ public class PostController {
     }
 
     @PostMapping
-    public Post createPost(@RequestBody CreatePostRequest post) {
-        return postService.create(post);
+    public PostResponse createPost(@RequestBody CreatePostRequest post) {
+        return PostResponse.from(postService.create(post));
     }
 
     @GetMapping("/{slug}")
-    public Post getPostBySlug(@PathVariable String slug) {
-        return postService.findBySlug(slug);
+    public PostResponse getPostBySlug(@PathVariable String slug) {
+        return PostResponse.from(postService.findBySlug(slug));
     }
 
     @GetMapping("/owned/{id}")
-    public Post getOwnedPostById(@PathVariable UUID id) {
-        return postService.findOwnedById(id);
+    public PostResponse getOwnedPostById(@PathVariable UUID id) {
+        return PostResponse.from(postService.findOwnedById(id));
     }
 
     @PutMapping("/{id}")
-    public Post updatePost(@PathVariable UUID id, @RequestBody UpdatePostRequest post) {
-        return postService.update(id, post);
+    public PostResponse updatePost(@PathVariable UUID id, @RequestBody UpdatePostRequest post) {
+        return PostResponse.from(postService.update(id, post));
     }
 
     @DeleteMapping("/{id}")

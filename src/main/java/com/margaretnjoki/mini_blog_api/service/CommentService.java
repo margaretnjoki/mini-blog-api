@@ -5,11 +5,12 @@ import com.margaretnjoki.mini_blog_api.entity.Post;
 import com.margaretnjoki.mini_blog_api.exception.ResourceNotFoundException;
 import com.margaretnjoki.mini_blog_api.repository.CommentRepository;
 import com.margaretnjoki.mini_blog_api.security.CurrentUserProvider;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-
+@Service
 public class CommentService {
     private final CommentRepository commentRepository;
     private final PostService postService;

@@ -87,8 +87,43 @@ public class PostService {
 
     public Post update(UUID id, UpdatePostRequest req) {
         Post post = findOwnedById(id);
+
+        String oldSlug = post.getSlug();
+
+        if (req.title() != null && !req.title().isBlank()) {
+            String newSlug = generateSlug(req.title());
+
+            if (!newSlug.equals(oldSlug)) {
+                newSlug = uniqueSlug(newSlug);
+                post.setTitle(req.title());
+                post.setSlug(newSlug);
+            } else {
+                post.setTitle(req.title());
+            }
+        }
+
+        if (req.bodyMd() != null) {
+            post.setBodyMd(req.bodyMd());
+        }
+
+        if (req.published() != null) {
+            post.setPublishedAt(
+                    req.published()
+                            ? Instant.now()
+                            : null
+            );
+        }
+
+        if (req.tagNames() != null) {
+            post.setTags(resolveTags(req.tagNames()));
+        }
+
         Post saved = postRepository.save(post);
+
+        evictPostCache(oldSlug);
+
         evictPostCache(saved.getSlug());
+
         return saved;
     }
 

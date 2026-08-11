@@ -5,6 +5,9 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
@@ -14,11 +17,25 @@ public class CacheConfig {
 
     @Bean
     public RedisCacheManagerBuilderCustomizer cacheManagerCustomizer() {
-        return builder -> builder
-                .withCacheConfiguration(
-                        "posts",
-                        RedisCacheConfiguration.defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(10))
+
+        GenericJacksonJsonRedisSerializer jsonSerializer =
+                GenericJacksonJsonRedisSerializer.create(builder ->
+                        builder.enableUnsafeDefaultTyping()
                 );
+
+        RedisCacheConfiguration cacheConfiguration =
+                RedisCacheConfiguration.defaultCacheConfig()
+                        .entryTtl(Duration.ofMinutes(10))
+                        .serializeKeysWith(
+                                RedisSerializationContext.SerializationPair
+                                        .fromSerializer(new StringRedisSerializer())
+                        )
+                        .serializeValuesWith(
+                                RedisSerializationContext.SerializationPair
+                                        .fromSerializer(jsonSerializer)
+                        );
+
+        return builder -> builder
+                .withCacheConfiguration("posts", cacheConfiguration);
     }
 }

@@ -11,7 +11,9 @@ import com.margaretnjoki.mini_blog_api.repository.CommentRepository;
 import com.margaretnjoki.mini_blog_api.repository.PostRepository;
 import com.margaretnjoki.mini_blog_api.repository.TagRepository;
 import com.margaretnjoki.mini_blog_api.security.CurrentUserProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -21,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class PostService {
     private final PostRepository postRepository;
@@ -60,7 +63,9 @@ public class PostService {
                 .orElseThrow(() -> new ResourceNotFoundException("Post", slug));
     }
 
+    @Cacheable(value = "posts", key = "#slug")
     public PostResponse getPostBySlugWithCommentCount(String slug) {
+        log.info("CACHE MISS - Loading post from database: slug={}", slug);
         Post post = postRepository.findBySlug(slug)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 

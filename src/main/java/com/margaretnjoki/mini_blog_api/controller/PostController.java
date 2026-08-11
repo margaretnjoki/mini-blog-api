@@ -45,6 +45,7 @@ public class PostController {
 
         return response;
     }
+
     @GetMapping
     public PagedResponse<PostResponse> search(
             @RequestParam(required = false, defaultValue = "") String tag,

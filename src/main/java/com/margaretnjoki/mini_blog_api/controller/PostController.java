@@ -7,10 +7,12 @@ import com.margaretnjoki.mini_blog_api.dtos.UpdatePostRequest;
 import com.margaretnjoki.mini_blog_api.entity.Post;
 import com.margaretnjoki.mini_blog_api.repository.CommentRepository;
 import com.margaretnjoki.mini_blog_api.repository.PostRepository;
+import com.margaretnjoki.mini_blog_api.service.DigestService;
 import com.margaretnjoki.mini_blog_api.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -22,12 +24,14 @@ public class PostController {
     private final PostService postService;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final DigestService digestService;
 
 
-    public PostController(PostService postService, PostRepository postRepository, CommentRepository commentRepository) {
+    public PostController(PostService postService, PostRepository postRepository, CommentRepository commentRepository, DigestService digestService) {
         this.postService = postService;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
+        this.digestService = digestService;
     }
 
     @PostMapping
@@ -72,5 +76,11 @@ public class PostController {
     public void deletePost(@PathVariable UUID id) {
         log.info("cache evict");
         postService.delete(id);
+    }
+
+    @GetMapping("/test/digest")
+    public String testDigest() {
+        digestService.sendDailyDigest();
+        return "Digest triggered successfully";
     }
 }

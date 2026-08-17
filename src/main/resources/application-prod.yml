@@ -10,6 +10,9 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
 
+server:
+  port: ${PORT:8080}
+
 logging:
   level:
     com.margaretnjoki.miniblog: INFO

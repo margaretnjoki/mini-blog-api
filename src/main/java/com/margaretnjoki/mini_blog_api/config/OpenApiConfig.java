@@ -19,13 +19,12 @@ public class OpenApiConfig {
         final String schemeName = "bearerAuth";
 
         Server productionServer = new Server()
-                .url("https://mini-blog-api-production-13c1.up.railway.app")
+                .url("https://mini-blog-api-production-13c1.up.railway.app/api/v1")
                 .description("Production server (Railway)");
 
         Server localServer = new Server()
-                .url("http://localhost:8080")
+                .url("http://localhost:8080/api/v1")
                 .description("Local development server");
-
         return new OpenAPI()
                 .info(new Info()
                         .title("Mini Blog API")
